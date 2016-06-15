@@ -167,6 +167,8 @@ removing the registry key.
     $wrapper = Invoke-Command -ScriptBlock $getWrapperADS
     $Killschtasks = {cmd /C "schtasks /delete /tn SecurityUpdate /f"}
     
+    Invoke-Command -ScriptBlock $Killschtasks
+    
     if ($Killschtasks){
         "Successfully kill schtasks"
     }
