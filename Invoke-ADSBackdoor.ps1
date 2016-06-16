@@ -195,7 +195,4 @@ removing the registry key.
     # remove the registry run key
     Remove-ItemProperty -Force -Path HKCU:Software\Microsoft\Windows\CurrentVersion\Run\ -Name Update;
     "Successfully removed HKCU:Software\Microsoft\Windows\CurrentVersion\Run\ 'Update' key"
-    Stop-Process -processname cmd.exe
-    Stop-Process -processname powershell.exe
-    "Killed all the background cmd.exe and powershell.exe"
 }
