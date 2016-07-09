@@ -102,7 +102,7 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
           Trigger = $Trigger
           ScheduledJobOption = $Option
        }
-       Register-ScheduledJob @paramHash
+       Register-ScheduledJob $paramHash
        "Process Complete. Persistent key is located at "
     }
     #Persist in Registry
