@@ -175,9 +175,9 @@ removing the registry key.
 #>
 
     # get the VBS trigger command/file location from the registry
-    $trigger = (gp HKCU:\Software\Microsoft\Windows\CurrentVersion\Run BootService).Update
-    $vbsFile = $trigger.split(" ")[1]
-    $getWrapperADS = {cmd /C "more <  $vbsFile"}
+    #$trigger = (gp HKCU:\Software\Microsoft\Windows\CurrentVersion\Run BootService).Update
+    #$vbsFile = $trigger.split(" ")[1]
+    $getWrapperADS = {cmd /C "more < $env:USERPROFILE\AppData:$vbsFile"}
     $wrapper = Invoke-Command -ScriptBlock $getWrapperADS
 
     if ($wrapper -match 'i in \((.+?)\)')
